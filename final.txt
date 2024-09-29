@@ -1,0 +1,742 @@
+Practical-1 cease chiper
+
+chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+def encryption(pt,k):
+    ct= ''
+    # To check wether the key is string or not
+    if k.isalpha():
+        k = chars.index(k)
+    else:
+        k = int(k)
+    for letter in pt.upper():
+        ct += chars[(chars.index(letter) + k) % 26]
+    return ct
+
+def decryption(ct,k):
+    pt= ''
+    # To check wether the key is string or not
+    if k.isalpha():
+        k = chars.index(k)
+    else:
+        k = int(k)
+    for letter in ct.upper():
+        pt += chars[(chars.index(letter) - k) % 26]
+    print("Decrypted text: ",pt)
+    
+pt = input("Enter the plain text: ")
+k1 = input("Enter the key: ")
+ct = encryption(pt,k1)
+print("Cipher Text: ",ct)
+decryption(ct,k1)
+
+-----------------------------------------------------------------------
+
+Practical-2 
+
+--------------------------------#vernam chipher---------------------------------
+
+chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+def encry(pt,k):
+    
+    ct = ""
+        
+    for i in range(len(pt)):
+        ct += chars[ ( chars.index( pt[i].upper() ) + chars.index( k[i].upper() ) ) %26 ]
+        
+    print(ct)
+
+def decry(ct,k):
+    
+    pt = ""
+        
+    for i in range(len(ct)):
+        pt += chars[ ( chars.index( ct[i].upper() ) - chars.index( k[i].upper() ) ) %26 ]
+        
+    print(pt)
+    
+pt = input("ENTER PLAIN TEXT : ")
+k =  input("ENTER KEY : ")
+
+encry(pt,k)
+
+ct = input("ENTER CHIPHER TEXT : ")
+
+decry(ct,k)
+
+
+#vigenere chipher
+
+----------------------------------------#vigener------------------------------------------
+
+chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+def encry(pt,k):
+    
+    ct = ""
+    
+    for i in range(len(pt)):
+        ct += chars[ ( chars.index( pt[i].upper() ) + chars.index( k[i%len(k)].upper()) ) % 26 ] 
+        
+    print(ct)  
+    return ct
+
+def decry(ct,k):
+    
+    pt = ""
+    
+    key_len = len(k)
+    
+    for i in range(len(ct)):
+        pt += chars[ ( chars.index(ct[i].upper()) - chars.index(k[i%len(k)].upper()) ) % 26 ]
+
+    print(pt)
+    return pt
+
+pt = input("ENTER PLAIN TEXT : ")
+k =  input("ENTER KEY : ")
+
+ct = encry(pt,k)
+
+decry(ct,k)
+
+----------------------------------------#playfair------------------------------------------
+
+chars = "abcdefghiklmnopqrstuvwxyz"
+
+def matrix(key):
+    key = key.lower()
+    unique_key = sorted(set(key), key=key.index)
+    matrix = []
+    letter_pos = {}
+    for char in chars:
+        if char not in unique_key:
+            unique_key.append(char)
+    for i in range(5):
+        matrix.append(unique_key[i*5:(i+1)*5])
+    
+    for i in range(5):
+        for j in range(5):
+            letter_pos[matrix[i][j]] = (i,j)
+    
+    return matrix,letter_pos
+
+def playfair_encryption(pt,key):
+    pt = pt.replace(" ","")
+    pt = pt.lower()
+    pt = pt.replace("j","i")
+    km,lp = matrix(key)
+    paired_pt = []
+    i1 = 0
+    i2 = 1
+    while i2 < len(pt):
+        if pt[i1] == pt[i2]:
+            paired_pt.append([pt[i1],"x"])
+            i1 += 1
+            i2 += 1
+        else:
+            paired_pt.append([pt[i1],pt[i2]])
+            i1 += 2
+            i2 += 2
+        if i1 == len(pt) - 1:
+            paired_pt.append([pt[i1],"x"])
+    ct = ""
+    for pair in paired_pt:
+        l1 = pair[0]
+        l2 = pair[1]
+        pos_l1 = lp[l1]    
+        pos_l2 = lp[l2]
+        if pos_l1[0] == pos_l2[0]:
+            ct += km[pos_l1[0]][(pos_l1[1]+1)%5] + km[pos_l2[0]][(pos_l2[1]+1)%5] 
+        elif pos_l1[1] == pos_l2[1]:
+            ct += km[(pos_l1[0]+1)%5][pos_l1[1]] + km[(pos_l2[0]+1)%5][pos_l2[1]]
+        else:
+            ct += km[pos_l1[0]][pos_l2[1]] + km[pos_l2[0]][pos_l1[1]]
+    print(ct)
+
+def playfair_decrytpion(pt,key):
+    km,lp = matrix(key)
+    paired_pt = []
+    i1 = 0
+    i2 = 1
+    while i2 < len(pt):
+        if pt[i1] == pt[i2]:
+            paired_pt.append([pt[i1],"x"])
+            i1 += 1
+            i2 += 1
+        else:
+            paired_pt.append([pt[i1],pt[i2]])
+            i1 += 2
+            i2 += 2
+        if i1 == len(pt) - 1:
+            paired_pt.append([pt[i1],"x"])
+    pt = ""
+    for pair in paired_pt:
+        l1 = pair[0]
+        l2 = pair[1]
+        pos_l1 = lp[l1]    
+        pos_l2 = lp[l2]
+        if pos_l1[0] == pos_l2[0]:
+            pt += km[pos_l1[0]][(pos_l1[1]-1)%5] + km[pos_l2[0]][(pos_l2[1]-1)%5] 
+        elif pos_l1[1] == pos_l2[1]:
+            pt += km[(pos_l1[0]-1)%5][pos_l1[1]] + km[(pos_l2[0]-1)%5][pos_l2[1]]
+        else:
+            pt += km[pos_l1[0]][pos_l2[1]] + km[pos_l2[0]][pos_l1[1]]
+    pt = pt.replace("x","")
+    print(pt)
+
+playfair_encryption("Pramod Sandeep Dosh","Hello")
+playfair_decrytpion("kulplfulmflwakflql","Hello")
+
+
+or
+
+def get_index(n):
+    for i in range(0,5):
+        for j in range(0,5):
+            if(n == l[i][j]):
+                return (""+str(i)+str(j))
+            elif(n == 'i' or n == 'j'):
+                return get_index("ij")
+            
+l=[[],[],[],[],[]]
+az="abcdefghijklmnopqrstuvwxyz"
+k=input("Enter Keyword : ")
+k2=""
+
+
+for i in range(0,len(k)):
+    if(k2.count(k[i]) == 0):
+        k2 = k2 + k[i]
+print()
+
+for i in range(0,26):
+    
+    if(k.count(az[i]) == 0):
+        k2 = k2 + az[i]
+
+print(k2+"\n")
+n=0
+ij=0
+for i in range(0,5):
+    for j in range(0,5):
+        l[i].append(0)
+        if(k2[n] == "i" or k2[n] == "j"):
+            if(ij == 0):
+                l[i][j]="ij"
+                ij = 1
+            else:
+                l[i][j]=k2[n+1]
+                n = n + 1
+            
+        else:
+            l[i][j] = k2[n]
+        n = n + 1
+
+for i in l:
+    print(i)
+
+
+pt = input("\nEnter Plain Text : ")
+
+inumber=[]
+ptws=""
+
+for i in range(0,len(pt)):
+  if(pt[i] != " "):
+        ptws = ptws + pt[i]
+ptl=[]
+pts=""
+n=0
+if(len(ptws) % 2 == 0):
+    for i in range(0,len(ptws),2):
+        if(ptws[i] != ptws[i+1]):
+            pts = pts + ptws[i] + ptws[i+1]
+        else:
+            pts = pts + ptws[i] + "x"
+else:
+    for i in range(0,len(ptws)-1,2):
+        if(ptws[i] != ptws[i+1]):
+            pts = pts + ptws[i] + ptws[i+1]
+        else:
+            pts = pts + ptws[i] + "x"
+    pts = pts + ptws[i+2] + "x"
+
+print("\n",pts)
+
+for i in range(0,len(pts)):
+    gi=get_index(pts[i])
+    inumber.append(gi)
+
+print("\n",inumber)
+
+ct=""
+for i in range(0,len(pts),2):
+    if(inumber[i][0] == inumber[i+1][0]):
+        print("row")
+        if(int(inumber[i][1]) + 1 < 5 and int(inumber[i+1][1]) + 1 < 5):
+            ct = ct + l[int(inumber[i][0])][int(inumber[i][1]) + 1] + l[int(inumber[i+1][0])][int(inumber[i+1][1]) + 1]
+        else:
+            if(int(inumber[i][1]) + 1 < 5):
+                ct = ct + l[int(inumber[i][0])][int(inumber[i][1]) + 1] + l[int(inumber[i+1][0])][0]
+            elif(int(inumber[i+1][1]) + 1 < 5):
+                ct = ct + l[int(inumber[i][0])][0] + l[int(inumber[i+1][0])][int(inumber[i+1][1]) + 1]
+                
+    elif(inumber[i][1] == inumber[i+1][1]):
+        print("col")
+        if(int(inumber[i][0]) + 1 < 5 and int(inumber[i+1][0]) + 1 < 5):
+            ct = ct + l[int(inumber[i][0]) + 1][int(inumber[i][1])] + l[int(inumber[i+1][0]) + 1][int(inumber[i+1][1])]
+        else:
+            ct = ct + l[int(inumber[i][0]) + 1][int(inumber[i][1])] + l[0][int(inumber[i+1][1])]
+    else:
+        print("else")
+        ct = ct + l[int(inumber[i][0])][int(inumber[i+1][1])] + l[int(inumber[i+1][0])][int(inumber[i][1])]
+
+print("\n",ct)
+ct=""
+for i in range(0,len(pts),2):
+    if(inumber[i][0] == inumber[i+1][0]):
+        print("row")
+ if(int(inumber[i][1]) + 1 < 5 and int(inumber[i+1][1]) + 1 < 5):
+            ct = ct + l[int(inumber[i][0])][int(inumber[i][1]) + 1] + l[int(inumber[i+1][0])][int(inumber[i+1][1]) + 1]
+        else:
+            if(int(inumber[i][1]) + 1 < 5):
+                ct = ct + l[int(inumber[i][0])][int(inumber[i][1]) + 1] + l[int(inumber[i+1][0])][0]
+            elif(int(inumber[i+1][1]) + 1 < 5):
+                ct = ct + l[int(inumber[i][0])][0] + l[int(inumber[i+1][0])][int(inumber[i+1][1]) + 1]
+                
+    elif(inumber[i][1] == inumber[i+1][1]):
+        print("col")
+        if(int(inumber[i][0]) + 1 < 5 and int(inumber[i+1][0]) + 1 < 5):
+            ct = ct + l[int(inumber[i][0]) + 1][int(inumber[i][1])] + l[int(inumber[i+1][0]) + 1][int(inumber[i+1][1])]
+        else:
+            ct = ct + l[int(inumber[i][0]) - 1][int(inumber[i][1])] + l[0][int(inumber[i+1][1])]
+    else:
+        print("else")
+        ct = ct + l[int(inumber[i][0])][int(inumber[i+1][1])] + l[int(inumber[i+1][0])][int(inumber[i][1])]
+
+print("\nCipher Text: ",ct)
+
+
+-----------------------------------------------------------------------
+
+Practical-3
+
+===================#railfence===========================
+
+
+#railfence
+def encry(pt,k):
+    
+    ct = []
+    
+    pt = pt.replace(" ","")
+    pt = pt.lower()
+    
+    
+    for i in range(k):
+        ct.append(pt[i::k])
+        
+    print("encrypted : ","".join(ct))
+    return ct
+
+def decry(ct,k):
+    pt = ""
+    
+    for i in range(len(ct[0])):
+        try:
+            for row in ct:
+                pt+=row[i]
+            
+        except IndexError:
+            break
+    print("decrypted : ",pt)
+
+pt = input("ENTER PLAIN TEXT : ")
+k =  int(input("ENTER KEY : "))
+
+
+ct = encry(pt,k)
+
+decry(ct,k)
+
+====================#coloumnar===========================
+
+def encryption(pt,k):
+    pt=pt.replace(" ","")
+    ct = [""]*len(k) # ["","","","",""] for k =5
+    for i in range(len(k)):
+        ct[int(k[i])-1] += pt[i::len(k)]
+    print(ct)
+    ct = "".join(ct)
+    print(ct)
+    decryption(ct,k)
+
+def decryption(ct,k):
+    extra = len(ct) % len(k)
+    general_column_length = len(ct) // len(k)
+    pt = [""]*len(k)
+    start_index = 0
+    for i in range(len(k)):
+        end_index = start_index + general_column_length
+        real_index = k.index(str(i+1)) 
+        print(real_index,i)
+        if real_index+1 <= extra:
+            end_index += 1
+        pt[real_index] = ct[start_index:end_index]
+        start_index=end_index
+    print(pt)
+    real_pt = ""
+    for i in range(general_column_length):
+        for col in pt:
+            real_pt += col[i]
+    
+    for i in range(extra):
+        real_pt += pt[i][-1]
+    print(real_pt)
+        
+            
+encryption("Hello Good Morning", "51423")
+        
+    
+
+-----------------------------------------------------------------------
+
+Practical-4
+
+=================#des========================
+#Des algorithm
+from pyDes import *
+data = input("Enter a string: ")
+bin_data = data.encode()
+key = input("Enter a key: ")
+bin_key = key.encode()  
+k = des(key, padmode=PAD_PKCS5)
+cipher_data = k.encrypt(data)
+print("Cipher Data: \n",cipher_data)
+print("Decrypted Data: \n",k.decrypt(cipher_data))
+
+=================#aes======================
+#AES Algorithm
+from aes_cipher import *
+
+data=input("Ente a string: ")
+
+data_encrypter=DataEncrypter()
+data_encrypter.Encrypt(data,"test_pwd")
+
+enc_data=data_encrypter.GetEncryptedData()
+print("Encrypted Text: \n",enc_data)
+
+data_decrypter=DataDecrypter()
+data_decrypter.Decrypt(enc_data, "test_pwd")
+
+dec_data = data_decrypter.GetDecryptedData()
+print("Decrypted Text: \n",dec_data)
+
+===================#rc3====================
+
+#rc4
+def rc4(key, data):
+    S = list(range(256))
+    j = 0
+    key_length = len(key)
+
+    for i in range(256):
+        j = (j + S[i] + key[i % key_length]) % 256
+        S[i], S[j] = S[j], S[i]
+
+    i = 0
+    j = 0
+    output = []
+
+    for byte in data:
+        i = (i + 1) % 256
+        j = (j + S[i]) % 256
+        S[i], S[j] = S[j], S[i]
+        K = S[(S[i] + S[j]) % 256]
+        output.append(byte ^ K)
+
+    return bytes(output)
+
+key = input("Enter the key: ").encode() 
+data = input("Enter the data: ").encode() 
+
+ciphertext = rc4(key, data)
+print(f'Encrypted: {ciphertext}')
+
+plaintext = rc4(key, ciphertext)
+print(f'Decrypted: {plaintext.decode()}')
+
+
+
+-----------------------------------------------------------------------
+
+Practical-5
+
+from math import gcd
+
+def isprime(a):
+    for i in range(2,a):
+        if a%i == 0:
+            return False
+    return True
+
+
+p = int(input("ENTER P : "))
+q = int(input("ENTER Q : "))
+
+if not(isprime(p) and isprime(q)):
+    raise Exception("NOT PRIME P AND Q")
+
+
+n = p*q
+
+phi = (p-1)*(q-1)
+
+e= 2
+
+while(e< phi):
+    if(gcd(e,phi) == 1):
+        break
+    else:
+        e+=1
+        
+d=2
+while(True):
+    if(((d*e)%phi)==1):
+        break
+    else:
+        d+=1
+        
+m =int(input("message"))
+
+c=(m**e)%n
+
+k = (c**d)%n
+
+print("encrypted",c)
+print("decrypted",k)
+
+-----------------------------------------------------------------------
+
+Practical-6
+
+#defihellman
+import sympy
+
+def diffie_helman(q,Xa,Xb):
+    alpha = sympy.primitive_root(q)
+    Ya = alpha**Xa % q
+    Yb = alpha**Xb % q
+    print(alpha)
+    print(f"Key pair of A: {Xa,Ya}")
+    print(f"Key pair of B: {Xb,Yb}")
+    
+    Key_A = (Yb)**Xa % q
+    Key_B = (Ya)**Xb % q
+    
+    print(f"Secret key of A and B: {Key_A,Key_B}")
+
+q = int(input("Enter a prime number: "))
+if not sympy.isprime(q):
+    print(f"{q} should be a prime number")
+else:
+    Xa = int(input("Private key of A: "))
+    Xb = int(input("Private key of B: "))
+    diffie_helman(q,Xa,Xb)
+
+-----------------------------------------------------------------------
+
+Practical-7
+
+================#md5======================
+import hashlib
+
+def file_check(filename):
+    hash1 = hashlib.md5()
+    with open(filename, 'rb') as open_file:
+        content = open_file.read()
+        hash1.update(content)
+    print(hash1.hexdigest())
+
+def pass_check(pw):
+    hash1 = hashlib.md5(pw.encode('utf-8'))
+    print("Your md5 password is", hash1.hexdigest())
+
+print("__MD5__")
+print("1. File Check \n2. Password Check")
+choice = int(input("Please enter your choice: "))
+
+if choice == 1:
+    print("File Check")
+    fn = "hello.txt"
+    file_check(fn)
+elif choice == 2:
+    print("Password Check")
+    pw = input("Enter a PASSWORD: ")
+    pass_check(pw)
+else:
+    print("......")
+
+===================#hmac===================
+
+#HMAC SHA1
+import hashlib
+import hmac
+
+def hmac_sha(key, message):
+    return hmac.new(key.encode("utf-8"), message.encode("utf-8"), hashlib.sha1).hexdigest()
+key = input("Enter your key: ")
+message = input("Enter your message: ")
+print("HMAC-SHA1 isgnature of your message is ", hmac_sha(key,message))
+
+-----------------------------------------------------------------------
+
+Practical-8
+
+#schonar
+import hashlib
+
+p = int(input("Enter a prime number: "))
+q = int(input(f"Enter a prime factor of {p-1}: "))
+
+alpha = 2
+while True:
+    if pow(alpha,q,p) == 1:
+        break
+    alpha += 1
+print(alpha)
+
+s = int(input(f"Enter a secret key between 0 and {q}: "))
+a_s_mod = pow(alpha,s,p) 
+v = pow(a_s_mod,-1,p)
+print(v)
+r = int(input(f"Enter a random number between 0 and {q}: "))
+x = pow(alpha,r,p)
+
+message = input("Enter a message: ")
+combined = f"{message}{x}"
+e = hashlib.sha1(combined.encode()).hexdigest()
+e_int = int(e,16)
+
+y = (r+s*e_int) % q
+print(y)
+#Verification
+x_ = (pow(alpha,y,p)*pow(v,e_int,p)) % p
+combined = f"{message}{x_}"
+e_ = hashlib.sha1(combined.encode()).hexdigest()
+
+print(f"Is signature valid?: {e==e_}")
+
+#elgamal
+
+import math
+import sympy
+import hashlib
+
+# Function to find a random integer k relatively prime to q-1
+def relative_prime(q):
+    for i in range(2, q):
+        if math.gcd(i, q-1) == 1:
+            return i
+    return None
+
+q = int(input("Enter a prime number (q): "))
+alpha = sympy.primitive_root(q)
+Xa = int(input("Enter private key (Xa): "))  # Private key
+Ya = pow(alpha, Xa, q)  # Public key Ya = alpha^Xa mod q
+print(f"Public key (Ya): {Ya}")
+
+message = input("Enter message: ")
+# Hash the message using SHA-1 and convert to an integer
+m = int(hashlib.sha1(message.encode()).hexdigest(), 16)
+
+# Select a random k that is relatively prime to q-1
+k = relative_prime(q)
+print(f"Random k: {k}")
+
+# Calculate S1 and S2 for the signature
+S1 = pow(alpha, k, q)
+k_inv = sympy.mod_inverse(k, q-1)
+S2 = (k_inv * (m - Xa * S1)) % (q-1)
+
+# Signature (S1, S2)
+print(f"Signature: S1 = {S1}, S2 = {S2}")
+
+
+# Verification
+v1 = pow(alpha, m, q)
+v2 = (pow(Ya, S1, q) * pow(S1, S2, q)) % q
+
+print(f"v1 = {v1}")
+print(f"v2 = {v2}")
+
+# Check if signature is valid
+if v1 == v2:
+    print("Signature is valid!")
+else:
+    print("Signature is invalid.")
+
+-----------------------------------------------------------------------
+
+Practical-9
+
+#firewall block
+
+##Configure Windows Firewall to block:
+##1. A Port
+##2. A Program
+##3. A Website
+##1. A Port
+##Step 1: Open Control Panel.
+##Step 2: Go To Firewall in Search Box.
+##Step 3: In the Windows Firewall, Click on advanced setting and then click on Inbound Rule.
+##Step 4: Go to New Rule in Right Hand Side Of The Window.
+##Step 5: Select Port and then select TCP and select Specific Local Ports and enter the Port 
+##Number, which you want to block(Eg:135)
+##Step 6: Click Next till the last Dialog Box appears, and Name the New Inbound Rule as you 
+##wish and Click on Finish:
+##2. A Program:
+##Step 1: Open Control Panel.
+##Step 2: Go To Firewall in Search Box.
+##Step 3: In the Windows Firewall, Click on advanced setting and then click on Outbound Rule.
+##Step 4: Go to New Rule in Right Hand Side Of The Window.
+##Step 5: Select Program then, Select This Program Path then, browse the files which you want to 
+##block.
+##Step 6: Click Next till the last Dialog Box appears, and Name the New Outbound Rule as you 
+##wish and Click on Finish:
+##3. A Website:
+##Step 1: Open Control Panel.
+##Step 2: Go To Firewall in Search Box.
+##Step 3: In the Windows Firewall, Click on advanced setting and then click on Outbound Rule.
+##Step 4: Go to New Rule in Right Hand Side Of The Window.
+##Step 5: Select Custom.
+##Step 6: Select All programs.
+##Step 7: Select Any, then select “These IP Address” then Click on Add and enter IP Address and 
+##click on OK.
+##Step 8: Click on Next Until Naming Box Appears and Name it as you wish, and click on Finish
+
+-----------------------------------------------------------------------
+
+Practical-10
+
+import socket
+import ssl
+hostname="www.python.org"
+port=443
+context=ssl.create_default_context()
+#secure con
+with socket.create_connection((hostname,port)) as sock:
+ with context.wrap_socket(sock,server_hostname=hostname) as ssock:
+ print(f"SSL protocol version:{ssock.version()}")
+ #req
+ req=f"GET / HTTP/1.1\r\nHost:{hostname}\r\n\r\n"
+ ssock.send(req.encode())
+ #res
+ res=ssock.recv(4096).decode()
+ print("response from the server:")
+ print(res)
+ ssock.close()
+
+-----------------------------------------------------------------------
